@@ -7,7 +7,7 @@
     "start": "node sync.js"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "ansi-colors": "^4.1.1",
     "dotenv": "^8.2.0",
