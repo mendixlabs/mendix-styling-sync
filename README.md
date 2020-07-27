@@ -36,6 +36,7 @@ Make sure you can reach this path from your Mac terminal.
 3. Keep the local folder in sync with the theme folder in your Mendix project
 
 - Every time you start your project, make sure the sync is stopped (you can Ctrl+C to quit) and you run Update in Mendix. Also, if you are updating your project (for example, your colleague made changes), stop the sync first. It might do well, but I am not sure if it will play nicely, so it's best to quit the sync first.
+- Now you can make changes in your local theme folder
 
 
 ## Warning
