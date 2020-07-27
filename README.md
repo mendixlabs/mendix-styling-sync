@@ -9,7 +9,7 @@ My VSCode works better on my Mac than in the Parallels virtual machine. So... I 
 
 ### Prerequisites
 
-- Download the **release.zip** from the [latest release](https://github.com/JelteMX/mendix-styling-sync/releases/).
+- Download the **release.zip** from the [latest release](https://github.com/JelteMX/mendix-styling-sync/releases/latest).
 - Unzip this in a folder on your Mac. Let's say in `/Users/Jelte/ProjectStyling/Project1`
 - Make sure you have Node.js (version 12.x or higher) installed. Easiest way is to use [NVM](https://github.com/nvm-sh/nvm)
 - Open the folder in a terminal
