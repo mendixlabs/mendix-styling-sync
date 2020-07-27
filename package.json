@@ -4,15 +4,24 @@
   "description": "",
   "private": true,
   "scripts": {
-    "start": "node sync.js"
+    "start": "node sync.js start",
+    "sync": "node sync.js start",
+    "copy": "node sync.js copy",
+    "atlasui": "node sync.js atlasui",
+    "compare": "node sync.js compare"
   },
   "author": "",
   "license": "MIT",
   "dependencies": {
     "ansi-colors": "^4.1.1",
+    "dir-compare": "^2.3.0",
     "dotenv": "^8.2.0",
+    "got": "^11.5.1",
+    "gunzip-maybe": "^1.4.2",
+    "meow": "^7.0.1",
     "shelljs": "^0.8.4",
-    "sync-folders": "^2.0.0"
+    "sync-folders": "^2.0.0",
+    "tar-fs": "^2.1.0"
   },
   "devDependencies": {}
 }
