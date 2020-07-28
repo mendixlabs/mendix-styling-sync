@@ -29,12 +29,19 @@ const validSource = () => {
     return res;
 }
 
-const cleanTargetFolder = () => {
-    console.log('Cleaning target folder');
-    if (!shell.test('-d', localCopy)) {
-        return;
+const cleanAndOrCreateFolder = (folderName, make = false) => {
+    console.log(`Cleaning folder: ${folderName}`);
+    if (shell.test('-d', folderName)) {
+        shell.rm('-r',folderName);
     }
-    shell.rm('-r',localCopy);
+    if (make) {
+        console.log(`Creating folder: ${folderName}`);
+        shell.mkdir('-p', folderName);
+    }
+}
+
+const cleanTargetFolder = () => {
+    cleanAndOrCreateFolder(localCopy);
 }
 
 const copySourceToTarget = () => {
@@ -106,10 +113,7 @@ const copyAtlasUI = async () => {
 
     // TS since 2.5.5
 
-    if (shell.test('-d', localAtlasUI)) {
-        shell.rm('-r',localAtlasUI);
-    }
-    shell.mkdir('-p', localAtlasUI);
+    cleanAndOrCreateFolder(localAtlasUI, true);
 
     const version = (process.env.THEME_ATLAS_UI_VERSION || "").trim();
     const releaseSource = `https://github.com/mendix/Atlas-UI-Framework/archive/${version}.tar.gz`;
@@ -142,6 +146,25 @@ const copyAtlasUI = async () => {
  * Compare
  */
 
+const readFilePromise = promisify(fs.readFile);
+const writeFilePromise = promisify(fs.writeFile);
+const readDiffFile = async (dirPath, fileName) => {
+    const filePath = path.join(dirPath, fileName);
+    const fileContent = await readFilePromise(filePath, { encoding: 'utf-8' });
+    return fileContent.toString();
+}
+
+const createDiffOutput = async (diff) => {
+    const diffOutput = diff;
+    if (diff.path1 && diff.name1) {
+        diffOutput.file1 = await readDiffFile(diff.path1, diff.name1);
+    }
+    if (diff.path2 && diff.name2) {
+        diffOutput.file2 = await readDiffFile(diff.path2, diff.name2);
+    }
+    return diffOutput;
+}
+
 const compare = async () => {
     console.log('Diff viewer not ready yet!');
 
@@ -155,15 +178,23 @@ const compare = async () => {
     try {
         const compared = await dirCompare.compare(localAtlasUI, localCopy, {
             compareDate: false,
+            compareContent: true,
+            compareSize: true,
             excludeFilter: '.DS_Store,.gitignore,.prettierrc,.stylelintrc'
         });
 
-        if (compared.diffSet) {
-            compared.diffSet.forEach(diff => {
-                if (diff.state !== 'equal') {
-                    console.log(diff);
-                }
-            })
+        console.log(`I have found ${compared.differences} differences, writing file`);
+
+        if (compared.differences > 0 && compared.diffSet) {
+            const output = await Promise.all(compared.diffSet.filter(diff => diff.state !== 'equal').map(createDiffOutput));
+            const diffPath = path.resolve('./diff');
+            const diffFile = path.join(diffPath, 'diff.json');
+
+            cleanAndOrCreateFolder(diffPath, true);
+            await writeFilePromise(diffFile, JSON.stringify(output, null, 4));
+            console.log(`Written diff output to: ${diffFile}`);
+        } else {
+            console.log('We found no differences!');
         }
     } catch (error) {
         console.log('We have an error1', error);
