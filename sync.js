@@ -204,7 +204,7 @@ const compare = async () => {
             compareDate: false,
             compareContent: true,
             compareSize: true,
-            excludeFilter: '.*,*.map,*.tff,*.woff,*.woff2,*.eot'
+            excludeFilter: '.*,*.map,*.woff,*.woff2,*.eot,*.ttf'
         });
 
         console.log(`I have found ${cyanBright(''+ compared.differences)} differences, writing file`);
