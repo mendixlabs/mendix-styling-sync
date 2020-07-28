@@ -5,8 +5,10 @@
   "private": true,
   "scripts": {
     "start": "node sync.js start",
+    "help": "node sync.js --help",
     "sync": "node sync.js start",
     "copy": "node sync.js copy",
+    "check": "node sync.js check",
     "atlasui": "node sync.js atlasui",
     "compare": "node sync.js compare"
   },

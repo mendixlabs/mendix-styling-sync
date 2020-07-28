@@ -49,7 +49,6 @@ const copySourceToTarget = () => {
     shell.cp('-r', sourceCopyFolder, localCopy);
 }
 
-
 const syncAndWatch = () => {
     console.log(`Starting sync between ${sourceCopyFolder} and ${localCopy}`)
     syncFolders(localCopy, sourceFolder, {
@@ -95,6 +94,26 @@ const copy = () => {
 
 const sync = () => {
     copy() && syncAndWatch();
+}
+
+/**
+ * Check
+ */
+
+const check = () => {
+    const manifest = path.resolve('./theme/manifest.json');
+    if (!shell.test('-f', manifest)) {
+        console.log(`I can't find the manifest at ${manifest}. Please run the copy/sync command first`);
+        return;
+    }
+    const manifestStr = fs.readFileSync(manifest, 'utf-8').toString();
+    const manifestJSON = JSON.parse(manifestStr);
+    if (manifestJSON.version) {
+        console.log(`\n\nTheme is using Atlas UI version ${cyanBright(manifestJSON.version)}\n\n`);
+    } else {
+        console.log('Unknown version of Atlas UI, manifest.json in theme folder does not contain a version string');
+    }
+
 }
 
 /**
@@ -150,16 +169,21 @@ const readFilePromise = promisify(fs.readFile);
 const writeFilePromise = promisify(fs.writeFile);
 const readDiffFile = async (dirPath, fileName) => {
     const filePath = path.join(dirPath, fileName);
-    const fileContent = await readFilePromise(filePath, { encoding: 'utf-8' });
-    return fileContent.toString();
+    try {
+        const fileContent = await readFilePromise(filePath, { encoding: 'utf-8' });
+        return fileContent.toString();
+    } catch (error) {
+        console.error(`Error reading ${cyanBright(filePath)}: `, error);
+        return ""
+    }
 }
 
 const createDiffOutput = async (diff) => {
     const diffOutput = diff;
-    if (diff.path1 && diff.name1) {
+    if (diff.type1 === 'file') {
         diffOutput.file1 = await readDiffFile(diff.path1, diff.name1);
     }
-    if (diff.path2 && diff.name2) {
+    if (diff.type2 === 'file') {
         diffOutput.file2 = await readDiffFile(diff.path2, diff.name2);
     }
     return diffOutput;
@@ -183,7 +207,7 @@ const compare = async () => {
             excludeFilter: '.DS_Store,.gitignore,.prettierrc,.stylelintrc'
         });
 
-        console.log(`I have found ${compared.differences} differences, writing file`);
+        console.log(`I have found ${cyanBright(''+ compared.differences)} differences, writing file`);
 
         if (compared.differences > 0 && compared.diffSet) {
             const output = await Promise.all(compared.diffSet.filter(diff => diff.state !== 'equal').map(createDiffOutput));
@@ -191,12 +215,14 @@ const compare = async () => {
             const diffFile = path.join(diffPath, 'diff.json');
 
             cleanAndOrCreateFolder(diffPath, true);
+
             await writeFilePromise(diffFile, JSON.stringify(output, null, 4));
-            console.log(`Written diff output to: ${diffFile}`);
+            console.log(`Written diff output to: ${diffFile}\n`);
         } else {
             console.log('We found no differences!');
         }
     } catch (error) {
+        console.dir(error);
         console.log('We have an error1', error);
     }
 }
@@ -209,11 +235,13 @@ const compare = async () => {
 (() => {
     const cli = meow(`
         Usage
-        $ node sync.js <command>
+        $ node sync.js <command> (or 'npm run <command>')
 
         Commands
         start : Start the sync
+        sync : Start the sync
         copy : Copy source folder
+        check : Check the Atlas UI version
         atlasui : Download Atlas UI source
         compare: Compare theme to atlas
     `, {
@@ -227,6 +255,9 @@ const compare = async () => {
     }
     if (command === 'copy') {
         return copy();
+    }
+    if (command === 'check') {
+        return check();
     }
     if (command === 'atlasui') {
         return copyAtlasUI();
