@@ -7,6 +7,7 @@
     "start": "node sync.js start",
     "help": "node sync.js --help",
     "sync": "node sync.js start",
+    "syncNoCopy": "node sync.js startNoCopy",
     "copy": "node sync.js copy",
     "check": "node sync.js check",
     "atlasui": "node sync.js atlasui",
@@ -15,12 +16,14 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@types/react-native": "^0.63.32",
     "ansi-colors": "^4.1.1",
     "dir-compare": "^2.3.0",
     "dotenv": "^8.2.0",
     "got": "^11.5.1",
     "gunzip-maybe": "^1.4.2",
     "meow": "^7.0.1",
+    "react-native-device-info": "^7.0.2",
     "shelljs": "^0.8.4",
     "sync-folders": "^2.0.0",
     "tar-fs": "^2.1.0"

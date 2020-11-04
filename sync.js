@@ -96,6 +96,10 @@ const sync = () => {
     copy() && syncAndWatch();
 }
 
+const syncNoCopy = () => {
+    syncAndWatch();
+}
+
 /**
  * Check
  */
@@ -252,6 +256,9 @@ const compare = async () => {
 
     if (command === 'start') {
         return sync();
+    }
+    if (command === 'startNoCopy') {
+        return syncNoCopy();
     }
     if (command === 'copy') {
         return copy();
